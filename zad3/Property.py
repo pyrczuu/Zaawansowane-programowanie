@@ -6,4 +6,5 @@ class Property:
         self.address = address
 
     def __str__(self):
-        return f"A property at {self.address} priced at {self.price } with {self.rooms} rooms, an area of {self.area}"
+        return (f"A property at {self.address} priced at {self.price} with "
+                f"{self.rooms} rooms, an area of {self.area}")
