@@ -16,7 +16,8 @@ def main():
 
     # zad 8
     parser = argparse.ArgumentParser(description="Fetch 20 breweries.")
-    parser.add_argument("--city", help='filter by city, e.g. --city "san diego"')
+    parser.add_argument("--city",
+                        help='filter by city, e.g. --city "san diego"')
     args = parser.parse_args()
 
     for brewery in get_breweries(args.city):

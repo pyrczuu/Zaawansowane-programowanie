@@ -14,9 +14,9 @@ class Brewery:
         self.country = data.get("country")
         self.website = data.get("website_url")
 
-
     def __repr__(self):
-        return f"{self.name} ({self.type}) - {self.city}, {self.state}, {self.country}"
+        return (f"{self.name} ({self.type}) - {self.city}, "
+                f"{self.state}, {self.country}")
 
 
 def get_breweries(city: str | None = None, count: int = 20) -> list[Brewery]:
