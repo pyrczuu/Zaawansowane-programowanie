@@ -5,6 +5,7 @@ from zad6 import zad6
 from zad7 import *
 import argparse
 
+
 def main():
     # print(zad2(5, 2))
     # print(zad4(3,3,5))
@@ -20,6 +21,7 @@ def main():
 
     for brewery in get_breweries(args.city):
         print(brewery)
+
 
 if __name__ == "__main__":
     main()

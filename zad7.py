@@ -14,6 +14,7 @@ class Brewery:
         self.country = data.get("country")
         self.website = data.get("website_url")
 
+
     def __repr__(self):
         return f"{self.name} ({self.type}) - {self.city}, {self.state}, {self.country}"
 
