@@ -22,3 +22,12 @@ def test_count_vowels():
     assert zad3.count_vowels("bcd") == 0
     assert zad3.count_vowels("") == 0
     assert zad3.count_vowels("Python żółwia") == 4
+
+def test_calculate_discount():
+    assert zad4.calculate_discount(100, 0.2) == 80.0
+    assert zad4.calculate_discount(50, 0) == 50.0
+    assert zad4.calculate_discount(200, 1) == 0.0
+    with pytest.raises(ValueError):
+        zad4.calculate_discount(100, -1)
+        zad4.calculate_discount(100, 1.5)
+
