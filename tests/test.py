@@ -31,3 +31,10 @@ def test_calculate_discount():
         zad4.calculate_discount(100, -1)
         zad4.calculate_discount(100, 1.5)
 
+def test_flatten_list():
+    assert zad5.flatten_list([1,2,3]) == [1,2,3]
+    assert zad5.flatten_list([1, [2, 3], [4, [5]]]) == [1,2,3,4,5]
+    assert zad5.flatten_list([]) == []
+    assert zad5.flatten_list([[[1]]]) == [1]
+    assert zad5.flatten_list([1, [2, [3, [4]]]]) == [1,2,3,4]
+
