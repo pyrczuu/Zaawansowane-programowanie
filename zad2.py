@@ -1,5 +1,5 @@
 def fibonacci(n) -> int:
-    if n > 0:
+    if n < 0:
         raise ValueError
     elif n == 0:
         return 0
