@@ -46,3 +46,15 @@ def test_word_frequencies():
     assert zad6.word_frequencies("Python Python python") == {"python": 3}
     assert zad6.word_frequencies("Ala ma kota, a kot ma Ale.") == {"ala": 1, "ma": 2,
                                                                    "kota": 1, "a": 1, "kot": 1, "ale": 1}
+
+def test_is_prime():
+    assert zad7.is_prime(2) == True
+    assert zad7.is_prime(3) == True
+    assert zad7.is_prime(4) == False
+    assert zad7.is_prime(0) == False
+    assert zad7.is_prime(1) == False
+    assert zad7.is_prime(5) == True
+    assert zad7.is_prime(97) == True
+
+
+
