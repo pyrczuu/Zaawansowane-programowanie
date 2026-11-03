@@ -15,3 +15,10 @@ def test_fibonacci():
     assert zad2.fibonacci(10) == 55
     with pytest.raises(ValueError):
         zad2.fibonacci(-1)
+
+def test_count_vowels():
+    assert zad3.count_vowels("Python") == 2
+    assert zad3.count_vowels("AEIOUY") == 6
+    assert zad3.count_vowels("bcd") == 0
+    assert zad3.count_vowels("") == 0
+    assert zad3.count_vowels("Python żółwia") == 4
