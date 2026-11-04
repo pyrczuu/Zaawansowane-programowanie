@@ -1,31 +1,38 @@
-import csv
-import os
+import sqlite3
 import sys
 import uuid
-from filelock import FileLock
 
-FILE_PATH = "queue.csv"
-LOCK_PATH = "queue.csv.lock"
+DB_PATH = "queue.db"
 
 
-def add_job(task_description="Rozmowa telefoniczna"):
-    job_id = str(uuid.uuid4())[:8]
-    status = "pending"
+def init_db():
+    with sqlite3.connect(DB_PATH) as conn:
+        cursor = conn.cursor()
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS jobs (
+                id TEXT PRIMARY KEY,
+                task TEXT NOT NULL,
+                status TEXT NOT NULL
+            )
+        """)
+        conn.commit()
 
-    lock = FileLock(LOCK_PATH)
-    with lock:
-        file_exists = os.path.exists(FILE_PATH)
 
-        with open(FILE_PATH, mode="a", newline="", encoding="utf-8") as f:
-            writer = csv.writer(f)
-            if not file_exists:
-                writer.writerow(["id", "task", "status"])
-            writer.writerow([job_id, task_description, status])
-
-    print(f"[PRODUCER] Dodano pracę ID: {job_id} | Status: {status}")
+def add_jobs(count=1, task_description="Rozmowa telefoniczna"):
+    init_db()
+    with sqlite3.connect(DB_PATH) as conn:
+        cursor = conn.cursor()
+        for i in range(count):
+            job_id = str(uuid.uuid4())[:8]
+            desc = f"{task_description} #{i + 1}" if count > 1 else task_description
+            cursor.execute(
+                "INSERT INTO jobs (id, task, status) VALUES (?, ?, ?)",
+                (job_id, desc, "pending")
+            )
+        conn.commit()
+    print(f"[PRODUCER] Dodano {count} zadań do bazy SQLite.")
 
 
 if __name__ == "__main__":
     count = int(sys.argv[1]) if len(sys.argv) > 1 else 1
-    for i in range(count):
-        add_job(f"Rozmowa telefoniczna #{i + 1}")
+    add_jobs(count)

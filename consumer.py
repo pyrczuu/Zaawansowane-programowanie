@@ -1,71 +1,65 @@
-import csv
-import os
+import sqlite3
 import time
-from filelock import FileLock
 
-FILE_PATH = "queue.csv"
-LOCK_PATH = "queue.csv.lock"
+DB_PATH = "queue.db"
 CHECK_INTERVAL = 5  # sekundy
-JOB_DURATION = 30   # sekundy
+JOB_DURATION = 30  # sekundy
+
+
+def claim_job():
+    with sqlite3.connect(DB_PATH, timeout=10.0) as conn:
+        cursor = conn.cursor()
+        cursor.execute("BEGIN IMMEDIATE")
+
+        cursor.execute("""
+            SELECT id, task FROM jobs 
+            WHERE status = 'pending' 
+            LIMIT 1
+        """)
+        row = cursor.fetchone()
+
+        if not row:
+            conn.commit()
+            return None
+
+        job_id, task_name = row
+
+        cursor.execute("""
+            UPDATE jobs 
+            SET status = 'in_progress' 
+            WHERE id = ?
+        """, (job_id,))
+
+        conn.commit()
+        return job_id, task_name
+
+
+def mark_job_done(job_id):
+    with sqlite3.connect(DB_PATH, timeout=10.0) as conn:
+        cursor = conn.cursor()
+        cursor.execute("""
+            UPDATE jobs 
+            SET status = 'done' 
+            WHERE id = ?
+        """, (job_id,))
+        conn.commit()
 
 
 def process_job():
-    lock = FileLock(LOCK_PATH)
-    job_to_do = None
-    rows = []
-
-    with lock:
-        if not os.path.exists(FILE_PATH):
-            return False
-
-        with open(FILE_PATH, mode="r", newline="", encoding="utf-8") as f:
-            reader = list(csv.reader(f))
-
-        if not reader:
-            return False
-
-        header = reader[0]
-        data = reader[1:]
-
-        for row in data:
-            if len(row) == 3 and row[2] == "pending" and job_to_do is None:
-                row[2] = "in_progress"
-                job_to_do = row
-            rows.append(row)
-
-        if job_to_do:
-            with open(FILE_PATH, mode="w", newline="", encoding="utf-8") as f:
-                writer = csv.writer(f)
-                writer.writerow(header)
-                writer.writerows(rows)
-
-    if not job_to_do:
+    try:
+        job = claim_job()
+    except sqlite3.OperationalError:
         return False
 
-    job_id, task_name, _ = job_to_do
-    print(f"[CONSUMER] Pobrano pracę ID: {job_id} ({task_name})."
-          f" Wykonywanie ({JOB_DURATION}s)...")
+    if not job:
+        return False
+
+    job_id, task_name = job
+    print(f"[CONSUMER] Pobrano pracę ID: {job_id} ({task_name}). Wykonywanie ({JOB_DURATION}s)...")
 
     time.sleep(JOB_DURATION)
 
-    with lock:
-        rows = []
-        with open(FILE_PATH, mode="r", newline="", encoding="utf-8") as f:
-            reader = list(csv.reader(f))
-
-        header = reader[0]
-        data = reader[1:]
-
-        for row in data:
-            if len(row) == 3 and row[0] == job_id:
-                row[2] = "done"
-            rows.append(row)
-
-        with open(FILE_PATH, mode="w", newline="", encoding="utf-8") as f:
-            writer = csv.writer(f)
-            writer.writerow(header)
-            writer.writerows(rows)
-
+    mark_job_done(job_id)
     print(f"[CONSUMER] Zakończono pracę ID: {job_id} -> STATUS: done")
     return True
 
